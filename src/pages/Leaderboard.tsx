@@ -3,17 +3,17 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Trophy, Heart, Flame, Crown, Medal } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { api } from "@/lib/api";
 
-const topCreators = [
-  { rank: 1, name: "Aarav Sharma", likes: 2340, streak: 45, posts: 67 },
-  { rank: 2, name: "Priya Patel", likes: 1890, streak: 32, posts: 52 },
-  { rank: 3, name: "Ravi Kumar", likes: 1560, streak: 28, posts: 41 },
-  { rank: 4, name: "Neha Gupta", likes: 1230, streak: 21, posts: 38 },
-  { rank: 5, name: "Arjun Singh", likes: 980, streak: 19, posts: 29 },
-  { rank: 6, name: "Diya Reddy", likes: 870, streak: 15, posts: 25 },
-  { rank: 7, name: "Karan Mehta", likes: 720, streak: 12, posts: 22 },
-];
+type LeaderboardEntry = {
+  rank: number;
+  user_id: number;
+  name: string;
+  likes: number;
+  posts: number;
+  score: number;
+};
 
 const getRankIcon = (rank: number) => {
   if (rank === 1) return <Crown className="w-5 h-5 text-secondary" />;
@@ -24,6 +24,17 @@ const getRankIcon = (rank: number) => {
 
 const Leaderboard = () => {
   const [tab, setTab] = useState<"creators" | "posts">("creators");
+  const [topCreators, setTopCreators] = useState<LeaderboardEntry[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      const data = await api.getLeaderboard();
+      if (Array.isArray(data)) {
+        setTopCreators(data);
+      }
+    };
+    load();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -69,7 +80,7 @@ const Leaderboard = () => {
                   <Heart className="w-4 h-4" /> {creator.likes}
                 </span>
                 <span className="flex items-center gap-1 text-secondary">
-                  <Flame className="w-4 h-4" /> {creator.streak}d
+                  <Flame className="w-4 h-4" /> {creator.score}
                 </span>
               </div>
             </motion.div>

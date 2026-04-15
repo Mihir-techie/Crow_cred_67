@@ -49,8 +49,63 @@ export const api = {
     const res = await fetch(`${API_BASE_URL}/post/feed`, { headers: getHeaders() });
     return res.json();
   },
-  createPost: async (content: string) => {
-    const res = await fetch(`${API_BASE_URL}/post/create`, { method: 'POST', headers: getHeaders(), body: JSON.stringify({ content }) });
+  createPost: async (content: string, image_url?: string) => {
+    const res = await fetch(`${API_BASE_URL}/post/create`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ content, image_url })
+    });
+    return res.json();
+  },
+  likePost: async (post_id: number) => {
+    const res = await fetch(`${API_BASE_URL}/post/like`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ post_id })
+    });
+    return res.json();
+  },
+  commentPost: async (post_id: number, content: string) => {
+    const res = await fetch(`${API_BASE_URL}/post/comment`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ post_id, content })
+    });
+    return res.json();
+  },
+  savePost: async (post_id: number) => {
+    const res = await fetch(`${API_BASE_URL}/post/save`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ post_id })
+    });
+    return res.json();
+  },
+  deletePost: async (post_id: number) => {
+    const res = await fetch(`${API_BASE_URL}/post/${post_id}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    return res.json();
+  },
+  reportPost: async (post_id: number, reason: string) => {
+    const res = await fetch(`${API_BASE_URL}/post/report`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ post_id, reason })
+    });
+    return res.json();
+  },
+  blockUser: async (blocked_user_id: number) => {
+    const res = await fetch(`${API_BASE_URL}/post/block-user`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ blocked_user_id })
+    });
+    return res.json();
+  },
+  getLeaderboard: async () => {
+    const res = await fetch(`${API_BASE_URL}/post/leaderboard`, { headers: getHeaders() });
     return res.json();
   },
 

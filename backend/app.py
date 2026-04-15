@@ -4,12 +4,37 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_mail import Mail
 import os
+from sqlalchemy import inspect, text
 
 from backend.config import Config
 
 db = SQLAlchemy()
 jwt = JWTManager()
 mail = Mail()
+
+def _ensure_post_schema_compatibility():
+    """
+    Lightweight schema upgrade for SQLite/dev environments where migrations are not configured.
+    """
+    inspector = inspect(db.engine)
+    tables = set(inspector.get_table_names())
+
+    if 'posts' in tables:
+        post_columns = {col['name'] for col in inspector.get_columns('posts')}
+        if 'image_url' not in post_columns:
+            db.session.execute(text("ALTER TABLE posts ADD COLUMN image_url VARCHAR(500)"))
+        if 'updated_at' not in post_columns:
+            db.session.execute(text("ALTER TABLE posts ADD COLUMN updated_at DATETIME"))
+            db.session.execute(text("UPDATE posts SET updated_at = created_at WHERE updated_at IS NULL"))
+        if 'is_deleted' not in post_columns:
+            db.session.execute(text("ALTER TABLE posts ADD COLUMN is_deleted BOOLEAN DEFAULT 0 NOT NULL"))
+
+    if 'likes' in tables:
+        like_columns = {col['name'] for col in inspector.get_columns('likes')}
+        if 'created_at' not in like_columns:
+            db.session.execute(text("ALTER TABLE likes ADD COLUMN created_at DATETIME"))
+
+    db.session.commit()
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -40,6 +65,7 @@ def create_app(config_class=Config):
     with app.app_context():
         from backend import models  # Ensure models are imported before create_all
         db.create_all()
+        _ensure_post_schema_compatibility()
 
     @app.route('/api/health', methods=['GET'])
     def health_check():

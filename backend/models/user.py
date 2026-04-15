@@ -14,6 +14,22 @@ class User(db.Model):
     courses = db.relationship('Course', backref='instructor', lazy=True)
     enrollments = db.relationship('Enrollment', backref='student', lazy=True)
     posts = db.relationship('Post', backref='author', lazy=True)
+    post_likes = db.relationship('Like', backref='liked_by', lazy=True)
+    post_comments = db.relationship('Comment', backref='commented_by', lazy=True)
+    saved_posts = db.relationship('SavedPost', backref='saved_by_user', lazy=True)
+    reports = db.relationship('Report', backref='reported_by', lazy=True)
+    blocked_users = db.relationship(
+        'Block',
+        foreign_keys='Block.blocker_user_id',
+        backref='blocker',
+        lazy=True
+    )
+    blocked_by_users = db.relationship(
+        'Block',
+        foreign_keys='Block.blocked_user_id',
+        backref='blocked_user',
+        lazy=True
+    )
     notifications = db.relationship('Notification', backref='user', lazy=True)
 
     def to_dict(self):
