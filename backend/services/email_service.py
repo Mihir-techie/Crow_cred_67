@@ -1,13 +1,27 @@
 from flask_mail import Message
+from flask import render_template
+
 
 def send_welcome_email(user_email, user_name):
-    from backend.app import mail
+    # from backend.app import mail
+    from app import mail
+
+
     subject = "Welcome to CrowCred 🎉"
-    body = f"Hello {user_name},\nWelcome to CrowCred.\nWe are excited to help you grow your skills, participate in hackathons, and build your professional journey.\n\nTeam CrowCred"
+
     try:
+        # Render your HTML file with dynamic data
+        html_body = render_template(
+            "welcome_email.html", 
+            user_name=user_name    
+        )
+
         msg = Message(subject, recipients=[user_email])
-        msg.body = body
+        msg.body = f"Hello {user_name}, Welcome to CrowCred!"  
+        msg.html = html_body  
+
         mail.send(msg)
+
     except Exception as e:
         print(f"Failed to send email: {e}")
 
